@@ -96,63 +96,73 @@
     <script src="components.js"></script>
     <script src="web3-handler.js"></script>
     <script>
-        lucide.createIcons();
+    lucide.createIcons();
 
-        window.rankPlan = [
-            { name: "None", count: 0, vol: 0 },
-            { name: "Star", count: 10, vol: 1000 },
-            { name: "Silver", count: 50, vol: 5000 },
-            { name: "Gold", count: 100, vol: 20000 },
-            { name: "Platinum", count: 300, vol: 50000 },
-            { name: "Diamond", count: 1000, vol: 100000 },
-            { name: "D. Diamond", count: 3000, vol: 1500000 },
-            { name: "C. Diamond", count: 5000, vol: 2000000 }
-        ];
+    // Contract structure ke hisaab se Rank Plan
+    window.rankPlan = [
+        { name: "None", count: 0, vol: 0 },
+        { name: "Star", count: 5, vol: 5000 },
+        { name: "Silver", count: 10, vol: 10000 },
+        { name: "Gold", count: 20, vol: 25000 },
+        { name: "Platinum", count: 50, vol: 50000 },
+        { name: "Diamond", count: 100, vol: 100000 },
+        { name: "D. Diamond", count: 200, vol: 500000 },
+        { name: "C. Diamond", count: 500, vol: 1000000 }
+    ];
 
-        window.updateLeadershipUI = function(teamCount, totalVolume, currentRankIndex) {
-            const currentRank = window.rankPlan[currentRankIndex] || window.rankPlan[0];
-            const nextRank = window.rankPlan[currentRankIndex + 1] || window.rankPlan[7];
+    window.updateLeadershipUI = function(teamCount, totalVolume, currentRankIndex) {
+        const currentRank = window.rankPlan[currentRankIndex] || window.rankPlan[0];
+        const nextRank = window.rankPlan[currentRankIndex + 1] || window.rankPlan[7];
 
-            document.getElementById('rank-display').innerText = currentRank.name;
-            document.getElementById('next-rank-display').innerText = nextRank.name;
-            document.getElementById('curr-count').innerText = teamCount;
-            document.getElementById('target-count').innerText = nextRank.count;
-            document.getElementById('curr-vol').innerText = totalVolume.toLocaleString();
-            document.getElementById('target-vol').innerText = nextRank.vol.toLocaleString();
+        document.getElementById('rank-display').innerText = currentRank.name;
+        document.getElementById('next-rank-display').innerText = nextRank.name;
+        document.getElementById('curr-count').innerText = teamCount;
+        document.getElementById('target-count').innerText = nextRank.count;
+        document.getElementById('curr-vol').innerText = totalVolume.toLocaleString();
+        document.getElementById('target-vol').innerText = nextRank.vol.toLocaleString();
 
-            const countPerc = nextRank.count > 0 ? (teamCount / nextRank.count) * 100 : 100;
-            const volPerc = nextRank.vol > 0 ? (totalVolume / nextRank.vol) * 100 : 100;
-            
-            document.getElementById('team-count-bar').style.width = Math.min(countPerc, 100) + "%";
-            document.getElementById('team-volume-bar').style.width = Math.min(volPerc, 100) + "%";
-        };
+        const countPerc = nextRank.count > 0 ? (teamCount / nextRank.count) * 100 : 100;
+        const volPerc = nextRank.vol > 0 ? (totalVolume / nextRank.vol) * 100 : 100;
+        
+        document.getElementById('team-count-bar').style.width = Math.min(countPerc, 100) + "%";
+        document.getElementById('team-volume-bar').style.width = Math.min(volPerc, 100) + "%";
+    };
 
-        window.addEventListener('load', () => {
-            const check = setInterval(async () => {
-                if (window.contract && window.signer) {
-                    clearInterval(check);
-                    try {
-                        const addr = await window.signer.getAddress();
-                        const stats = await window.contract.getUserStats(addr);
-                        const teamBusiness = parseFloat(ethers.utils.formatEther(await window.contract.totalTeamBusiness(addr)));
-                        const userData = await window.contract.users(addr);
-                        
-                        document.getElementById('directs-quali').innerText = userData.activeDirects.toString();
-                        document.getElementById('team-total-deposit').innerText = teamBusiness.toFixed(2);
-                        document.getElementById('current-team-count').innerText = stats[5].toString();
-                        
-                        const rankIndex = window.rankPlan.findIndex(r => r.name.toLowerCase() === stats[6].toLowerCase());
-                        window.updateLeadershipUI(parseInt(stats[5]), teamBusiness, rankIndex === -1 ? 0 : rankIndex);
-                        
-                        try {
-                            const reward = await window.contract.getIncomeByType(addr, stats[6]);
-                            document.getElementById('rank-reward-available').innerText = parseFloat(ethers.utils.formatEther(reward)).toFixed(2);
-                        } catch(e) { document.getElementById('rank-reward-available').innerText = "0.00"; }
-                        
-                    } catch(e) { console.error("Data Load Error:", e); }
-                }
-            }, 500);
-        });
-    </script>
+    window.addEventListener('load', () => {
+        const check = setInterval(async () => {
+            if (window.contract && window.signer) {
+                clearInterval(check);
+                try {
+                    const addr = await window.signer.getAddress();
+                    
+                    // Contract data fetch
+                    const userData = await window.contract.users(addr);
+                    const stats = await window.contract.getUserStats(addr); 
+                    // stats structure: (teamCount, directBusiness, teamBusiness, totalRoi, totalRef, totalLevel, totalRankBonus)
+                    
+                    const teamCount = stats[0].toNumber();
+                    const teamBusiness = parseFloat(ethers.utils.formatEther(stats[2]));
+                    const rankIndex = userData.rank; // uint8 rank 0-7
+
+                    // UI Updates
+                    document.getElementById('team-count').innerText = teamCount;
+                    document.getElementById('current-team-count').innerText = teamCount;
+                    document.getElementById('team-total-deposit').innerText = teamBusiness.toFixed(2);
+                    document.getElementById('rank-reward-available').innerText = ethers.utils.formatEther(userData.rankBonus);
+                    
+                    // Earnings
+                    const totalEarned = userData.roiIncome.add(userData.referralIncome).add(userData.levelIncome).add(userData.rankBonus);
+                    document.getElementById('total-earned').innerText = ethers.utils.formatEther(totalEarned);
+                    document.getElementById('referral-earnings').innerText = ethers.utils.formatEther(userData.referralIncome);
+                    document.getElementById('level-earnings').innerText = ethers.utils.formatEther(userData.levelIncome);
+
+                    // Update Progress UI
+                    window.updateLeadershipUI(teamCount, teamBusiness, rankIndex);
+                    
+                } catch(e) { console.error("Data Load Error:", e); }
+            }
+        }, 500);
+    });
+</script>
 </body>
 </html>
