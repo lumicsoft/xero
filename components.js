@@ -38,8 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <div id="mobile-drawer" class="fixed bottom-0 left-0 w-full bg-[#0d0d0d] border-t border-white/10 rounded-t-[30px] z-[9999] translate-y-full transition-transform duration-500 ease-in-out p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]">
             <div class="flex flex-col gap-4">
                 <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
-                <button onclick="location.href='index1.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="layout-dashboard" class="w-5 h-5 text-yellow-500"></i> DASHBOARD</button>
-                <button onclick="location.href='leadership.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="award" class="w-5 h-5 text-purple-500"></i> RANK </button>
+                
                 <button onclick="location.href='history.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="history" class="w-5 h-5 text-blue-500"></i> HISTORY</button>
                 <button onclick="handleLogout()" class="flex items-center gap-4 p-4 bg-red-500/10 rounded-2xl text-red-500 orbitron text-xs font-bold border border-red-500/10"><i data-lucide="power" class="w-5 h-5"></i> LOGOUT</button>
                 <button onclick="toggleMobileMenu()" class="mt-2 py-4 text-gray-500 orbitron text-[10px] font-black uppercase tracking-widest">Close Menu</button>
