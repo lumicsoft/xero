@@ -6,11 +6,9 @@
     <title>Active Deposits | Pro Max</title>
 
     <link rel="stylesheet" href="style1.css">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         .status-badge { background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 4px 10px; border-radius: 8px; font-size: 9px; font-weight: 800; border: 1px solid rgba(34, 197, 94, 0.3); }
@@ -25,7 +23,6 @@
     <div id="nav-placeholder"></div>
 
     <main class="max-w-7xl mx-auto space-y-8 pt-10 relative z-10">
-        
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-3xl font-black orbitron italic uppercase tracking-tighter">
@@ -38,11 +35,6 @@
             </button>
         </div>
 
-        <div class="chart-container">
-            <p class="orbitron text-[10px] text-yellow-500 mb-4 uppercase tracking-widest">Earnings Projection</p>
-            <canvas id="performanceChart" height="100"></canvas>
-        </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="premium-card"><div class="inner-content stat-box">
                 <div class="flex items-center gap-4">
@@ -51,11 +43,10 @@
                 </div>
                 <h3 class="amount-text orbitron">$<span id="total-active-capital">0.00</span></h3>
             </div></div>
-
             <div class="premium-card"><div class="inner-content stat-box">
                 <div class="flex items-center gap-4">
                     <div class="p-3 bg-white/5 rounded-xl border border-white/10"><i data-lucide="trending-up" class="text-green-500 w-6 h-6"></i></div>
-                    <p class="label-text">Daily Profit (0.23%)</p>
+                    <p class="label-text">Estimated Daily Profit</p>
                 </div>
                 <h3 class="amount-text orbitron text-green-400">$<span id="total-daily-profit">0.00</span></h3>
             </div></div>
@@ -74,74 +65,60 @@
     <script src="web3-handler.js"></script>
     
     <script>
-        const DAILY_ROI = 0.23; 
-        let myChart = null;
-async function loadActiveDeposits() {
-    const grid = document.getElementById('deposits-grid');
-    const activeContract = window.contract;
-    const address = localStorage.getItem('userAddress');
+        async function loadActiveDeposits() {
+            const grid = document.getElementById('deposits-grid');
+            const activeContract = window.contract;
+            const address = localStorage.getItem('userAddress');
 
-    if (!activeContract || !address) {
-        setTimeout(loadActiveDeposits, 1000);
-        return;
-    }
+            if (!activeContract || !address) {
+                setTimeout(loadActiveDeposits, 1000);
+                return;
+            }
 
-    try {
-        // 1. Stake Count fetch karein
-        const stakeCountBN = await activeContract.getStakeCount(address);
-        const stakeCount = stakeCountBN.toNumber(); // Convert BigNumber to number
-        console.log("Stake Count:", stakeCount);
-        
-        if (stakeCount === 0) {
-            grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 uppercase text-xs">No active nodes found.</div>`;
-            return;
-        }
-        
-        let html = '';
-        let totalActive = 0;
-        let foundAny = false;
-
-        // 2. Loop sahi tarike se chalayein
-        for (let i = 0; i < stakeCount; i++) {
-            const s = await activeContract.getStake(address, i);
-            
-            // Check active status
-            if (s.active) {
-                foundAny = true;
-                const amount = parseFloat(ethers.utils.formatUnits(s.amount, 18));
-                const maxPayout = parseFloat(ethers.utils.formatUnits(s.maxPayout, 18));
-                const earned = parseFloat(ethers.utils.formatUnits(s.totalEarnedFromStake, 18));
-                totalActive += amount;
+            try {
+                const deposits = await activeContract.getUserDepositPositions(address);
+                if (!deposits || deposits.length === 0) {
+                    grid.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 uppercase text-xs">No active nodes found.</div>`;
+                    return;
+                }
                 
-                // Progress calculation
-                let progress = maxPayout > 0 ? ((earned / maxPayout) * 100).toFixed(1) : 0;
+                let html = '';
+                let totalActive = 0;
+                let totalDailyProfit = 0;
+                let foundAny = false;
 
-                html += `
-                <div class="premium-card">
-                    <div class="inner-content !block p-6">
-                        <div class="flex justify-between mb-4">
-                            <h3 class="text-xl font-black orbitron text-white">$${amount.toLocaleString()}</h3>
-                            <span class="status-badge">${s.withBurn ? 'BURN' : 'NORMAL'}</span>
-                        </div>
-                        <div class="progress-container"><div class="progress-bar-node" style="width: ${progress}%"></div></div>
-                        <p class="text-[9px] text-gray-500 mt-2 uppercase">Earned: $${earned.toFixed(2)} / $${maxPayout.toFixed(2)}</p>
-                    </div>
-                </div>`;
+                deposits.forEach((s) => {
+                    if (s.isActive) {
+                        foundAny = true;
+                        const amount = parseFloat(ethers.utils.formatUnits(s.amount, 18));
+                        const roi = s.roiPercent.toNumber(); // Contract se ROI %
+                        totalActive += amount;
+                        totalDailyProfit += (amount * roi) / 10000; // Contract logic: amount * roi / 10000
+                        
+                        html += `
+                        <div class="premium-card">
+                            <div class="inner-content !block p-6">
+                                <div class="flex justify-between mb-4">
+                                    <h3 class="text-xl font-black orbitron text-white">$${amount.toLocaleString()}</h3>
+                                    <span class="status-badge">ACTIVE</span>
+                                </div>
+                                <div class="progress-container"><div class="progress-bar-node" style="width: 100%"></div></div>
+                                <p class="text-[9px] text-gray-500 mt-2 uppercase">Return Rate: ${roi / 100}% Daily</p>
+                                <p class="text-[9px] text-gray-500 uppercase">Started: ${new Date(s.timestamp * 1000).toLocaleDateString()}</p>
+                            </div>
+                        </div>`;
+                    }
+                });
+
+                document.getElementById('total-active-capital').innerText = totalActive.toLocaleString(undefined, {minimumFractionDigits: 2});
+                document.getElementById('total-daily-profit').innerText = totalDailyProfit.toFixed(4);
+                
+                grid.innerHTML = foundAny ? html : `<div class="col-span-full text-center py-20 text-gray-600">No Active Nodes</div>`;
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Load Error:", err);
             }
         }
-
-        // 3. UI Update
-        document.getElementById('total-active-capital').innerText = totalActive.toLocaleString(undefined, {minimumFractionDigits: 2});
-        document.getElementById('total-daily-profit').innerText = (totalActive * (DAILY_ROI / 100)).toFixed(2);
-        
-        grid.innerHTML = foundAny ? html : `<div class="col-span-full text-center py-20 text-gray-600">No Active Nodes</div>`;
-        lucide.createIcons();
-
-    } catch (err) {
-        console.error("Critical Error in loadActiveDeposits:", err);
-        grid.innerHTML = `<div class="col-span-full text-center py-20 text-red-500 text-xs">Error: ${err.message}</div>`;
-    }
-}
         
         window.addEventListener('load', () => setTimeout(loadActiveDeposits, 1500));
     </script>
