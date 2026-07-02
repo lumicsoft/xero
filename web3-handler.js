@@ -2,8 +2,8 @@ let provider, signer, contract;
 
 // --- CONFIGURATION ---
 const CONTRACT_ADDRESS = "0xe93731eEdDb1C8770138727175324ECf23c9Ef19"; 
-const BLX_TOKEN_ADDRESS = "0x0C978102175c6b9f90Dd53b249C1E5EdbF82DC3A"; // BSC USDT
-const TESTNET_CHAIN_ID = 97; 
+const USDT_TOKEN_ADDRESS = "YOUR_USDT_TOKEN_ADDRESS"; // Yahan apna USDT address daalein
+const TESTNET_CHAIN_ID = 97;
 
 // --- RANK CONFIG (Star1 to Master King) ---
 const RANK_DETAILS = [
@@ -19,22 +19,19 @@ const RANK_DETAILS = [
 
 const CONTRACT_ABI = [
     "function register(address referrer) external",
-    "function stake(uint256 amount, bool withBurn) external",
-    "function claimROI(uint256 stakeIndex) external",
-    "function withdraw(uint256 amount) external",
-    "function requestUnstake(uint256 stakeIndex) external",
-    "function claimUnstake(uint256 stakeIndex) external",
-    "function totalTeamBusiness(address) view returns (uint256)",
-     "function getPendingROI(address user) external view returns (uint256)",
-    "function users(address) view returns (bool exists, address referrer, uint256 totalStaked, uint256 totalIncome, uint256 totalWithdrawn, uint256 activeDirects, uint256 teamCount, string currentRank)",
-    "function getIncomeHistory(address user) external view returns(tuple(string incomeType, uint256 amount, uint256 timestamp)[])",
-    "function getUserStats(address user) external view returns(uint256 roi, uint256 level, uint256 referral, uint256 reward, uint256 teamShare, uint256 teamCount, string rank)",
-    "function getIncomeByType(address user, string incomeType) external view returns (uint256)",
-    // Naye added functions:
-    "function getTeamByLevel(address _user, uint256 _level) external view returns (address[], uint256[])",
-    "function getStakeCount(address user) external view returns (uint256)",
-    "function getStake(address user, uint256 index) external view returns (tuple(uint256 amount, uint256 startTime, uint256 totalRoiReceived, uint256 maxPayout, bool withBurn, bool active, uint256 lastClaimTime, bool unstakeRequested, uint256 unstakeRequestTime, uint256 totalEarnedFromStake))"
+    "function deposit(uint256 amount) external",
+    "function claimRoi() external",
+    "function withdraw() external",
+    "function users(address) view returns (bool isRegistered, address referrer, uint256 totalDeposit, uint256 totalWithdrawn, uint256 roiIncome, uint256 referralIncome, uint256 levelIncome, uint256 rankBonus, uint8 rank, uint256 lastUpdate)",
+    "function userStats(address) view returns (uint256 totalRoiEarned, uint256 totalReferralEarned, uint256 totalLevelEarned, uint256 totalRankBonusEarned, uint256 directBusiness, uint256 teamBusiness, uint256 teamCount)",
+    "function getHistory(address user) external view returns (tuple(string category, address fromUser, uint256 amount, uint256 timestamp)[])",
+    "function getUserDetails(address user) external view returns (uint256 totalDeposit, uint256 totalWithdrawn, uint8 rank, uint256 roiIncome, uint256 referralIncome, uint256 levelIncome, uint256 rankBonus)",
+    "function getUserStats(address user) external view returns (uint256 teamCount, uint256 directBusiness, uint256 teamBusiness, uint256 totalRoi, uint256 totalRef, uint256 totalLevel, uint256 totalRankBonus)",
+    "function getUserRank(address user) external view returns (uint8)",
+    "function getUserDepositPositions(address user) external view returns (tuple(uint256 amount, uint256 roiPercent, uint256 timestamp, bool isActive)[])",
+    "function getLevelTeam(address user, uint8 level) external view returns (address[])"
 ];
+
 const ERC20_ABI = ["function approve(address spender, uint256 amount) public returns (bool)", "function allowance(address owner, address spender) public view returns (uint256)"];
 
 const calculateGlobalROI = () => 0.90;
