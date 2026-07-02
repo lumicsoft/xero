@@ -325,63 +325,25 @@ async function setupApp(address) {
     if (path.includes('index1.html')) fetchAllData(address);
 }
 
-window.fetchBlockchainHistory = async function(categories) {
+window.fetchBlockchainHistory = async function(allowedCategories) {
     try {
         const address = await window.signer.getAddress();
-        const finalLogs = [];
-
-        // 1. STAKE DATA (Name check: 'DEPOSIT' हटाकर 'STAKE' किया)
-        if (categories.includes('STAKE')) { 
-            const count = await window.contract.getStakeCount(address);
-            console.log("Total Stakes found:", count.toString());
-
-            for (let i = 0; i < count; i++) {
-                const s = await window.contract.getStake(address, i);
-                
-                // डेटा मैपिंग - कॉन्ट्रैक्ट के अनुसार
-                const amount = s.amount !== undefined ? s.amount : s[0];
-                const startTime = s.startTime !== undefined ? s.startTime : s[1];
-                const withBurn = s.withBurn !== undefined ? s.withBurn : s[4];
-
-                if (amount) {
-                    finalLogs.push({
-                        type: 'STAKE', // UI में भी 'STAKE' दिखेगा
-                        amount: parseFloat(ethers.utils.formatUnits(amount.toString(), 18)).toFixed(2),
-                        date: new Date(startTime * 1000).toLocaleDateString(),
-                        time: new Date(startTime * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-                        detail: withBurn ? "With Burn" : "Standard"
-                    });
-                }
-            }
-        }
-
-        // 2. INCOME DATA (नाम चेक)
-        const incomeLogs = await window.contract.getIncomeHistory(address);
-        if (incomeLogs && incomeLogs.length > 0) {
-            incomeLogs.forEach(item => {
-                const incomeType = item.incomeType || item[0];
-                const amount = item.amount || item[1];
-                const timestamp = item.timestamp || item[2];
-
-                if (categories.includes(incomeType.toUpperCase())) {
-                    finalLogs.push({
-                        type: incomeType.toUpperCase(),
-                        amount: parseFloat(ethers.utils.formatUnits(amount.toString(), 18)).toFixed(2),
-                        date: new Date(timestamp * 1000).toLocaleDateString(),
-                        time: new Date(timestamp * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
-                        detail: incomeType
-                    });
-                }
-            });
-        }
-
-        return finalLogs;
+        const logs = await window.contract.getHistory(address);
+        
+        // logs mein struct hai: [category, fromUser, amount, timestamp]
+        // Hum ise filter aur format karenge
+        return logs.map(item => ({
+            type: item.category, // Contract se aayi hui category
+            amount: parseFloat(ethers.utils.formatUnits(item.amount, 18)).toFixed(2),
+            date: new Date(item.timestamp * 1000).toLocaleDateString(),
+            time: new Date(item.timestamp * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+            category: item.category.toLowerCase() // Filter ke liye
+        })).filter(item => allowedCategories.length === 0 || allowedCategories.includes(item.type));
     } catch (e) {
-        console.error("DEBUG: History Error Trace:", e);
+        console.error("History Fetch Error:", e);
         return [];
     }
 }
-
 async function fetchAndDisplayData() {
     console.log("Fetching Leadership Data...");
     try {
