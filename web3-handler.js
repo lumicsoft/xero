@@ -223,17 +223,31 @@ window.handleCompoundDaily = async function() {
     }
 }
 
-
 window.handleLogin = async function() {
     try {
         if (!window.ethereum) return alert("Please install Trust Wallet or MetaMask!");
+        
+        // 1. Accounts fetch karein
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const userData = await contract.users(accounts[0]);
-        if (userData.exists === true) { localStorage.setItem('userAddress', accounts[0]); window.location.href = "index1.html"; }
-        else { alert("Not registered!"); window.location.href = "register.html"; }
-    } catch (err) { console.error("Login Error:", err); }
-}
+        const userAddress = accounts[0];
 
+        // 2. Contract se user data fetch karein
+        // contract.users(address) humein User struct return karta hai
+        const userData = await contract.users(userAddress);
+
+        // 3. 'isRegistered' boolean check karein (contract ke struct ke anusar)
+        if (userData.isRegistered === true) { 
+            localStorage.setItem('userAddress', userAddress); 
+            window.location.href = "index1.html"; 
+        } else { 
+            alert("Not registered!"); 
+            window.location.href = "register.html"; 
+        }
+    } catch (err) { 
+        console.error("Login Error:", err); 
+        alert("Login failed. Check console for details.");
+    }
+}
 window.handleRegister = async function() {
     const refField = document.getElementById('reg-referrer');
     const regBtn = event.target;
@@ -272,7 +286,7 @@ async function setupApp(address) {
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: '0x61' }], // 97 = 0x61
                 });
-                window.location.reload(); // स्विच होने के बाद रीलोड
+                window.location.reload();
                 return;
             } catch (switchError) {
                 if (switchError.code === 4902) {
@@ -287,15 +301,17 @@ async function setupApp(address) {
     }
 
     // 2. कॉन्ट्रैक्ट डेटा और रिडायरेक्शन लॉजिक
+    // userData mein ab 'isRegistered' boolean milega
     const userData = await contract.users(address);
     const path = window.location.pathname;
 
-    console.log("User Exists in Contract:", userData.exists);
+    console.log("User Registered Status:", userData.isRegistered);
 
-    if (!userData.exists && !path.includes('register.html')) {
+    // logic: userData.isRegistered ka use karein
+    if (!userData.isRegistered && !path.includes('register.html')) {
         window.location.href = "register.html";
         return;
-    } else if (userData.exists && path.includes('register.html')) {
+    } else if (userData.isRegistered && path.includes('register.html')) {
         window.location.href = "index1.html";
         return;
     }
@@ -304,6 +320,7 @@ async function setupApp(address) {
     showLogoutIcon(address);
     if (path.includes('index1.html')) fetchAllData(address);
 }
+
 window.fetchBlockchainHistory = async function(categories) {
     try {
         const address = await window.signer.getAddress();
@@ -421,46 +438,42 @@ async function fetchAllData(address) {
     if(addrDisplay) addrDisplay.innerText = address;
     
     try {
-        // 1. getUserStats (returns: roi, level, referral, reward, teamShare, teamCount, rank)
-        const stats = await contract.getUserStats(address); 
-        
-        // 2. User main data call
+        // 1. Contract se dono main structures fetch karein
         const userData = await contract.users(address);
+        const stats = await contract.userStats(address);
 
-        // --- Dashboard UI Mapping ---
-
-        // Revenue Stats (From stats array)
-        updateText('roi-earning', format(stats[0]));        // ROI Income
-        updateText('level-earning', format(stats[1]));      // Team Bonus (Renamed Level Income)
-        updateText('referral-bonus', format(stats[2]));     // Referral Bonus
-        updateText('rank-earning', format(stats[3]));       // Reward Bonus (Renamed Reward)
-        updateText('team-profit-share', format(stats[4]));  // Team Profit Share Bonus (New)
-        
-        // Dashboard Stats Box Mapping
-        updateText('total-deposit', format(userData.totalStaked));
-        updateText('total-earned', format(userData.totalIncome));
+        // --- 2. User Data Display (User Struct) ---
+        // userData: (isRegistered, referrer, totalDeposit, totalWithdrawn, roiIncome, referralIncome, levelIncome, rankBonus, rank, lastUpdate)
+        updateText('total-deposit', format(userData.totalDeposit));
         updateText('total-withdrawn', format(userData.totalWithdrawn));
-        updateText('team-count', stats[5].toString());
-        updateText('directs-count', userData.activeDirects.toString());
-        
-        // Dynamic Rank Display
-        updateText('rank-display', stats[6].toString());
-        
-        // Withdrawable Balance (Available = Total Income - Total Withdrawn)
-        const withdrawable = userData.totalIncome.sub(userData.totalWithdrawn);
-        updateText('compounding-balance', format(withdrawable));
-        updateText('withdraw-balance-display', format(withdrawable));
-        updateText('cap-balance', format(withdrawable));
+        updateText('roi-income', format(userData.roiIncome));
+        updateText('referral-income', format(userData.referralIncome));
+        updateText('level-income', format(userData.levelIncome));
+        updateText('rank-bonus', format(userData.rankBonus));
+        updateText('user-rank', userData.rank.toString());
 
-        // Active Deposit for Compound Power
-        updateText('active-deposit', format(userData.totalStaked));
-        updateText('active-deposit-cp', format(userData.totalStaked));
+        // --- 3. Stats Data Display (UserStats Struct) ---
+        // stats: (totalRoiEarned, totalReferralEarned, totalLevelEarned, totalRankBonusEarned, directBusiness, teamBusiness, teamCount)
+        updateText('total-roi-earned', format(stats.totalRoiEarned));
+        updateText('total-ref-earned', format(stats.totalReferralEarned));
+        updateText('total-level-earned', format(stats.totalLevelEarned));
+        updateText('total-rank-earned', format(stats.totalRankBonusEarned));
+        updateText('direct-business', format(stats.directBusiness));
+        updateText('team-business', format(stats.teamBusiness));
+        updateText('team-count', stats.teamCount.toString());
 
-    } catch (err) { 
-        console.error("Data Sync Error:", err); 
+        // --- 4. Total Combined Income (User Requirement) ---
+        // Total Income = ROI + Referral + Level + Rank Bonus
+        const totalEarned = userData.roiIncome
+                            .add(userData.referralIncome)
+                            .add(userData.levelIncome)
+                            .add(userData.rankBonus);
+        updateText('total-earned-combined', format(totalEarned));
+
+    } catch (err) {
+        console.error("Data Sync Error:", err);
     }
 }
-
 // Ensure ki 'format' function ethers.utils ka use kar raha ho
 const format = (val) => val ? parseFloat(ethers.utils.formatUnits(val, 18)).toFixed(2) : "0.00";
 const updateText = (id, val) => document.querySelectorAll(`[id="${id}"]`).forEach(el => el.innerText = val);
