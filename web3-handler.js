@@ -6,15 +6,16 @@ const USDT_TOKEN_ADDRESS = "YOUR_USDT_TOKEN_ADDRESS"; // Yahan apna USDT address
 const TESTNET_CHAIN_ID = 97;
 
 // --- RANK CONFIG (Star1 to Master King) ---
+// Contract ke checkAndUpgradeRank logic ke anusar updated
 const RANK_DETAILS = [
-     { name: "None", count: 0, vol: 0 },
-            { name: "Star", count: 10, vol: 1000 },
-            { name: "Silver", count: 50, vol: 5000 },
-            { name: "Gold", count: 100, vol: 20000 },
-            { name: "Platinum", count: 300, vol: 50000 },
-            { name: "Diamond", count: 1000, vol: 100000 },
-            { name: "D. Diamond", count: 3000, vol: 1500000 },
-            { name: "C. Diamond", count: 5000, vol: 2000000 }
+    { name: "None", count: 0, vol: 0 },          // Index 0
+    { name: "1 Star", count: 5000, vol: 2000 },    // Rank 1
+    { name: "2 Star", count: 10000, vol: 4000 }, // Rank 2
+    { name: "3 Star", count: 25000, vol: 7000 },   // Rank 3
+    { name: "4 Star", count: 500000, vol: 20000 }, // Rank 4
+    { name: "5 Star", count: 100000, vol: 40000 },  // Rank 5
+    { name: "6 Star", count: 200000, vol: 80000 }, // Rank 6
+    { name: "7 Star", count: 500000, vol: 120000 } // Rank 7
 ];
 
 const CONTRACT_ABI = [
