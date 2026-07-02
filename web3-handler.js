@@ -388,34 +388,36 @@ async function fetchAndDisplayData() {
 
         const userAddress = await window.signer.getAddress();
         
-        // 1. Force Dashboard Sync
-        if (typeof window.fetchAllData === 'function') {
-            await window.fetchAllData(userAddress);
-        }
-
-        // 2. Contract se data layein
+        // 1. Fetch data from Contract
+        // getUserStats returns: (teamCount, directBusiness, teamBusiness, totalRoi, totalRef, totalLevel, totalRankBonus)
         const stats = await window.contract.getUserStats(userAddress);
-        const teamBusinessWei = await window.contract.totalTeamBusiness(userAddress);
+        const userData = await window.contract.users(userAddress);
         
-        // 3. Data format karein
-        const teamBusiness = parseFloat(ethers.utils.formatEther(teamBusinessWei));
-        const teamCount = parseInt(stats[5].toString());
-        const currentRank = stats[6]; // Contract ka rank string
+        // 2. Data Destructuring
+        const teamCount = parseInt(stats[0].toString());
+        const teamBusiness = parseFloat(ethers.utils.formatEther(stats[2])); // teamBusiness is at index 2
+        const totalRankBonus = parseFloat(ethers.utils.formatEther(stats[6])); // totalRankBonus at index 6
+        const currentRank = parseInt(userData.rank); // Rank is uint8 in User struct
 
         console.log("Stats Loaded:", { teamCount, teamBusiness, currentRank });
 
-        // 4. UI Update (Leadership Specific)
+        // 3. UI Updates
+        // Team Total Deposit
         if(document.getElementById('team-total-deposit')) 
             document.getElementById('team-total-deposit').innerText = teamBusiness.toFixed(2);
+        
+        // Team Count
         if(document.getElementById('current-team-count')) 
             document.getElementById('current-team-count').innerText = teamCount;
+        
+        // Rank Reward Available
         if(document.getElementById('rank-reward-available')) 
-            document.getElementById('rank-reward-available').innerText = parseFloat(ethers.utils.formatEther(stats[3])).toFixed(2);
+            document.getElementById('rank-reward-available').innerText = totalRankBonus.toFixed(2);
 
-        // 5. Progress Bar Update
+        // 4. Progress Bar Update (Rank index)
         if(window.rankPlan) {
-            const rankIndex = window.rankPlan.findIndex(r => r.name.toLowerCase() === currentRank.toLowerCase());
-            const safeRankIndex = rankIndex === -1 ? 0 : rankIndex;
+            // Rank 0-7 ko map karein
+            const safeRankIndex = currentRank; 
             
             if(typeof window.updateLeadershipUI === 'function') {
                 window.updateLeadershipUI(teamCount, teamBusiness, safeRankIndex);
@@ -425,6 +427,7 @@ async function fetchAndDisplayData() {
         console.error("Data Load Error:", error);
     }
 }
+
 
 
 // --- UPDATED fetchAllData FUNCTION ---
