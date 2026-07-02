@@ -65,69 +65,70 @@
      <script src="components.js"></script>
     <script src="web3-handler.js"></script>
     
-    <script>
-        async function loadActiveDeposits() {
-            const grid = document.getElementById('deposits-grid');
-            const activeContract = window.contract;
-            const address = localStorage.getItem('userAddress');
+   <script>
+    lucide.createIcons();
+    const format = (val) => val ? parseFloat(ethers.utils.formatUnits(val, 18)).toFixed(2) : "0.00";
 
-            if (!activeContract || !address) return;
+    async function loadReferralData() {
+        if (!window.contract) { setTimeout(loadReferralData, 1000); return; }
+        try {
+            const address = await window.signer.getAddress();
+            const user = await window.contract.users(address);
+            const stats = await window.contract.userStats(address); 
 
-            try {
-                // Fetch Data
-                const deposits = await activeContract.getUserDepositPositions(address);
-                const userData = await activeContract.users(address);
-                const stats = await activeContract.userStats(address);
-                
-                // 1. Capping Progress Logic (200%)
-                const totalDeposit = parseFloat(ethers.utils.formatUnits(userData.totalDeposit, 18));
-                const totalEarned = parseFloat(ethers.utils.formatUnits(stats.totalRoiEarned, 18)) + 
-                                   parseFloat(ethers.utils.formatUnits(stats.totalReferralEarned, 18)) + 
-                                   parseFloat(ethers.utils.formatUnits(stats.totalLevelEarned, 18)) + 
-                                   parseFloat(ethers.utils.formatUnits(stats.totalRankBonusEarned, 18));
-                
-                const limit = totalDeposit * 2;
-                let progress = limit > 0 ? ((totalEarned / limit) * 100) : 0;
-                if (progress > 100) progress = 100;
-                
-                document.getElementById('income-progress-bar').style.width = progress + "%";
-                document.getElementById('income-percent-text').innerText = progress.toFixed(1) + "%";
+            // 1. Team Count (stats[6] in contract is teamCount)
+            document.getElementById('team-count').innerText = stats.teamCount.toString();
+            
+            // 2. Directs (Contract mein 'directs' mapping nahi hai, directBusiness use kar sakte hain)
+            document.getElementById('direct-count').innerText = "Update"; 
 
-                // 2. Deposits Grid
-                let html = '';
-                let totalActive = 0;
-                let totalDailyProfit = 0;
+            // 3. Total Earned Calculation (ROI + Ref + Level + Rank)
+            const total = user.roiIncome.add(user.referralIncome).add(user.levelIncome).add(user.rankBonus);
+            document.getElementById('total-earned').innerText = format(total);
+            
+            // 4. Earnings
+            document.getElementById('referral-earnings').innerText = format(user.referralIncome); 
+            document.getElementById('level-earnings').innerText = format(user.levelIncome);
+            document.getElementById('rank-earnings').innerText = format(user.rankBonus);
+            
+            loadLevelData(1);
+        } catch (err) { console.error("Referral Data Error:", err); }
+    }
 
-                deposits.forEach((s) => {
-                    if (s.isActive) {
-                        const amount = parseFloat(ethers.utils.formatUnits(s.amount, 18));
-                        const roi = s.roiPercent.toNumber();
-                        totalActive += amount;
-                        totalDailyProfit += (amount * roi) / 10000;
-                        
-                        html += `
-                        <div class="premium-card">
-                            <div class="inner-content !block p-6">
-                                <div class="flex justify-between mb-4">
-                                    <h3 class="text-xl font-black orbitron text-white">$${amount.toLocaleString()}</h3>
-                                    <span class="status-badge">ACTIVE</span>
-                                </div>
-                                <div class="progress-container"><div class="progress-bar-node" style="width: 100%"></div></div>
-                                <p class="text-[9px] text-gray-500 mt-2 uppercase">Daily Return: ${roi / 100}%</p>
-                            </div>
-                        </div>`;
-                    }
-                });
-
-                document.getElementById('total-active-capital').innerText = totalActive.toLocaleString(undefined, {minimumFractionDigits: 2});
-                document.getElementById('total-daily-profit').innerText = totalDailyProfit.toFixed(4);
-                grid.innerHTML = html || '<div class="col-span-full text-center py-20 text-gray-600">No Active Nodes</div>';
-                lucide.createIcons();
-            } catch (err) {
-                console.error("Load Error:", err);
+    async function loadLevelData(level) {
+        const tableBody = document.getElementById('team-table-body');
+        tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-yellow-500">SYNCING LEVEL ${level}...</td></tr>`;
+        
+        try {
+            const address = await window.signer.getAddress();
+            // Contract function: getLevelTeam(address, uint8)
+            const members = await window.contract.getLevelTeam(address, parseInt(level));
+            
+            if (!members || members.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-gray-600">No members at Level ${level}</td></tr>`;
+                return;
             }
+
+            let html = '';
+            for (let addr of members) {
+                // Short address display
+                const shortAddr = addr.substring(0,6) + "..." + addr.substring(38);
+                html += `<tr>
+                    <td class="p-4 font-mono text-yellow-500">${shortAddr}</td>
+                    <td class="p-4">Level ${level}</td>
+                    <td class="p-4"><span class="status-badge">ACTIVE</span></td>
+                </tr>`;
+            }
+            tableBody.innerHTML = html;
+        } catch (err) { 
+            console.error("Level Data Error:", err);
+            tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error Loading Level</td></tr>`; 
         }
-        window.addEventListener('load', () => setTimeout(loadActiveDeposits, 1500));
-    </script>
+    }
+    
+    // Auto-init
+    window.addEventListener('load', () => setTimeout(loadReferralData, 1500));
+</script>
+    
 </body>
 </html>
