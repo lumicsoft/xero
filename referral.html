@@ -61,57 +61,71 @@
     <script src="web3-handler.js"></script>
     
     <script>
-        lucide.createIcons();
-        const format = (val) => val ? parseFloat(ethers.utils.formatUnits(val, 18)).toFixed(2) : "0.00";
+    lucide.createIcons();
 
-        async function loadReferralData() {
-            if (!window.contract) { setTimeout(loadReferralData, 1000); return; }
-            try {
-                const address = await window.signer.getAddress();
-                const user = await window.contract.users(address);
-                const stats = await window.contract.userStats(address); 
-
-                document.getElementById('team-count').innerText = stats.teamCount.toString();
-                // Total Earned = ROI + Ref + Level + Rank
-                const total = user.roiIncome.add(user.referralIncome).add(user.levelIncome).add(user.rankBonus);
-                document.getElementById('total-earned').innerText = format(total);
-                document.getElementById('referral-earnings').innerText = format(user.referralIncome); 
-                document.getElementById('level-earnings').innerText = format(user.levelIncome);
-                document.getElementById('rank-earnings').innerText = format(user.rankBonus);
-                
-                loadLevelData(1);
-            } catch (err) { console.error("Referral Error:", err); }
+    async function loadReferralData() {
+        // Wait till contract is initialized in web3-handler.js
+        if (typeof window.contract === 'undefined') {
+            setTimeout(loadReferralData, 500); 
+            return;
         }
 
-        async function loadLevelData(level) {
-            const tableBody = document.getElementById('team-table-body');
-            tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-yellow-500">SYNCING LEVEL ${level}...</td></tr>`;
+        try {
+            const address = await window.signer.getAddress();
+            console.log("Fetching for:", address);
+
+            const user = await window.contract.users(address);
+            const stats = await window.contract.userStats(address); 
+
+            // IDs update karein
+            document.getElementById('team-count').innerText = stats.teamCount.toString();
             
-            try {
-                const address = await window.signer.getAddress();
-                // Contract ke 'getLevelTeam' function ka use
-                const members = await window.contract.getLevelTeam(address, level);
-                
-                if (!members || members.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-gray-600">No members at Level ${level}</td></tr>`;
-                    return;
-                }
-
-                let html = '';
-                for (let addr of members) {
-                    html += `<tr>
-                        <td class="p-4 font-mono text-yellow-500">${addr.substring(0,6)}...${addr.substring(38)}</td>
-                        <td class="p-4">Level ${level}</td>
-                        <td class="p-4"><span class="status-badge">REGISTERED</span></td>
-                    </tr>`;
-                }
-                tableBody.innerHTML = html;
-            } catch (err) { 
-                console.error("Error:", err);
-                tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error Loading Data</td></tr>`; 
-            }
+            // Stats object se total income calculate karein (Contract ke logic ke mutabik)
+            const total = user.roiIncome.add(user.referralIncome).add(user.levelIncome).add(user.rankBonus);
+            
+            // Global 'format' function ka use karein jo web3-handler.js mein hai
+            document.getElementById('total-earned').innerText = format(total);
+            document.getElementById('referral-earnings').innerText = format(user.referralIncome); 
+            document.getElementById('level-earnings').innerText = format(user.levelIncome);
+            document.getElementById('rank-earnings').innerText = format(user.rankBonus);
+            
+            loadLevelData(1);
+        } catch (err) { 
+            console.error("Referral Data Load Error:", err); 
         }
-        window.addEventListener('load', () => setTimeout(loadReferralData, 1500));
-    </script>
+    }
+
+    async function loadLevelData(level) {
+        const tableBody = document.getElementById('team-table-body');
+        tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-yellow-500">SYNCING LEVEL ${level}...</td></tr>`;
+        
+        try {
+            const address = await window.signer.getAddress();
+            const members = await window.contract.getLevelTeam(address, parseInt(level));
+            
+            if (!members || members.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="3" class="p-10 text-center text-gray-600">No members at Level ${level}</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            members.forEach(addr => {
+                html += `<tr>
+                    <td class="p-4 font-mono text-yellow-500">${addr.substring(0,6)}...${addr.substring(38)}</td>
+                    <td class="p-4">Level ${level}</td>
+                    <td class="p-4"><span class="status-badge">REGISTERED</span></td>
+                </tr>`;
+            });
+            tableBody.innerHTML = html;
+        } catch (err) { 
+            console.error("Level Data Error:", err);
+            tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Error Loading Data</td></tr>`; 
+        }
+    }
+
+    // Load hone par function call karein
+    window.addEventListener('load', () => setTimeout(loadReferralData, 1500));
+</script>
+    
 </body>
 </html>
