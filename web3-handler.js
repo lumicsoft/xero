@@ -71,12 +71,12 @@ async function init() {
                 try {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x61' }], // 97 = 0x61
+                        params: [{ chainId: '0x61' }], // 97 = 0x61 (BSC Testnet)
                     });
                     window.location.reload();
                     return; 
                 } catch (switchError) {
-                    console.warn("User denied network switch or network not added.");
+                    console.warn("User denied network switch.");
                 }
             }
 
@@ -87,13 +87,19 @@ async function init() {
             const accounts = await window.ethereum.request({ method: 'eth_accounts' });
             if (accounts.length > 0) {
                 signer = provider.getSigner();
-                window.signer = signer; // <--- Yeh line zaroori hai
+                window.signer = signer;
                 
                 // Signer ke sath contract instance
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                window.contract = contract; // <--- Global contract update
+                window.contract = contract; 
                 
-                await setupApp(accounts[0]);
+                // --- CONTRACT BASED REGISTRATION CHECK ---
+                // Contract ke 'users' mapping (isRegistered: bool) se check
+                const userData = await contract.users(accounts[0]);
+                const isRegistered = userData.isRegistered; // Boolean status
+                
+                console.log("User Registered:", isRegistered);
+                await setupApp(accounts[0], isRegistered);
             }
 
             // Listeners
@@ -108,6 +114,7 @@ async function init() {
         console.error("Init Error:", error);
     }
 }
+
 // --- CORE LOGIC ---
 window.handleDeposit = async function(withBurn) {
     const amountInput = document.getElementById('deposit-amount');
