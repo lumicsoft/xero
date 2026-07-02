@@ -17,7 +17,6 @@
     <div id="nav-placeholder"></div>
 
     <main class="max-w-7xl mx-auto space-y-6 pt-10 pb-20 relative z-10">
-        
         <div class="mb-8">
             <h1 class="text-3xl font-black orbitron italic uppercase tracking-tighter">Leadership <span class="text-yellow-500">Overview</span></h1>
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.2em]">Based on Contract Ranks</p>
@@ -38,131 +37,87 @@
             </div></div>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="premium-card"><div class="inner-content text-center">
-                <p class="label-text mb-1">Reward Bonus</p>
-                <h3 class="text-xl font-black orbitron text-green-400"><span id="rank-reward-available">0.00</span> BLX</h3>
-            </div></div>
-            <div class="premium-card"><div class="inner-content text-center">
-                <p class="label-text mb-1">Direct Qualifiers</p>
-                <h3 class="text-xl font-black orbitron text-white"><span id="directs-quali">0</span></h3>
-            </div></div>
-            <div class="premium-card"><div class="inner-content text-center">
-                <p class="label-text mb-1">Total Team Business</p>
-                <h3 class="text-xl font-black orbitron text-yellow-500"><span id="team-total-deposit">0.00</span> BLX</h3>
-            </div></div>
-            <div class="premium-card"><div class="inner-content text-center">
-                <p class="label-text mb-1">Current Team Count</p>
-                <h3 class="text-xl font-black orbitron text-emerald-400"><span id="current-team-count">0</span></h3>
-            </div></div>
+        <div class="grid grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Self Topup</p><h3 class="text-lg font-black orbitron text-white">$<span id="self-topup">0.00</span></h3></div></div>
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Direct Business</p><h3 class="text-lg font-black orbitron text-white">$<span id="direct-business">0.00</span></h3></div></div>
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Reward Bonus</p><h3 class="text-lg font-black orbitron text-green-400"><span id="rank-reward-available">0.00</span></h3></div></div>
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Total Team Biz</p><h3 class="text-lg font-black orbitron text-yellow-500"><span id="team-total-deposit">0.00</span></h3></div></div>
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Team Count</p><h3 class="text-lg font-black orbitron text-emerald-400"><span id="current-team-count">0</span></h3></div></div>
+            <div class="premium-card"><div class="inner-content text-center"><p class="label-text mb-1">Total Earned</p><h3 class="text-lg font-black orbitron text-blue-400"><span id="total-earned">0.00</span></h3></div></div>
         </div>
 
         <div class="premium-card"><div class="inner-content !block py-8">
-            <h3 class="text-sm font-black orbitron uppercase italic text-yellow-500 mb-6 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4"></i> Milestone Progress</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-3">
-                    <div class="flex justify-between items-end"><p class="label-text">Team Count</p><p class="orbitron text-xs"><span id="curr-count">0</span> / <span id="target-count">0</span></p></div>
-                    <div class="h-2 bg-white/5 rounded-full overflow-hidden"><div id="team-count-bar" class="progress-bar-fill" style="width: 0%"></div></div>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex justify-between items-end"><p class="label-text">Business Volume</p><p class="orbitron text-xs"><span id="curr-vol">0</span> / <span id="target-vol">0</span></p></div>
-                    <div class="h-2 bg-white/5 rounded-full overflow-hidden"><div id="team-volume-bar" class="progress-bar-fill" style="width: 0%"></div></div>
-                </div>
+            <h3 class="text-sm font-black orbitron uppercase italic text-yellow-500 mb-6 flex items-center gap-2"><i data-lucide="zap" class="w-4 h-4"></i> Milestone Progress (Business Volume)</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-end"><p class="label-text">Volume Progress</p><p class="orbitron text-xs"><span id="curr-vol">0</span> / <span id="target-vol">0</span></p></div>
+                <div class="h-2 bg-white/5 rounded-full overflow-hidden"><div id="team-volume-bar" class="progress-bar-fill" style="width: 0%"></div></div>
             </div>
         </div></div>
 
         <div class="premium-card"><div class="inner-content !block">
-            <h3 class="text-sm font-black orbitron uppercase italic text-yellow-500 mb-6 flex items-center gap-2">
-                <i data-lucide="list" class="w-4 h-4"></i> Leadership Rank Chart
-            </h3>
-            <div class="overflow-x-auto">
-                <table class="luxury-table w-full text-left">
-                    <thead><tr class="text-gray-500 text-[10px] uppercase"><th>Rank</th><th>Team Count</th><th>Business Volume</th></tr></thead>
-                    <tbody class="text-gray-400">
-                        <tr><td class="text-white font-bold">1Star</td><td>10</td><td>1,000</td></tr>
-                        <tr><td class="text-white font-bold">2Star</td><td>50</td><td>5,000</td></tr>
-                        <tr><td class="text-white font-bold">3Star</td><td>100</td><td>20,000</td></tr>
-                        <tr><td class="text-white font-bold">4Star</td><td>300</td><td>50,000</td></tr>
-                        <tr><td class="text-white font-bold">5Star</td><td>1,000</td><td>100,000</td></tr>
-                        <tr><td class="text-white font-bold">6Star</td><td>3,000</td><td>1,500,000</td></tr>
-                        <tr><td class="text-white font-bold">7Star</td><td>5,000</td><td>2,000,000</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <h3 class="text-sm font-black orbitron uppercase italic text-yellow-500 mb-6 flex items-center gap-2"><i data-lucide="list" class="w-4 h-4"></i> Official Rank Chart</h3>
+            <div class="overflow-x-auto"><table class="luxury-table w-full text-left">
+                <thead><tr class="text-gray-500 text-[10px] uppercase"><th>Rank</th><th>Self Topup</th><th>Direct Biz</th><th>Team Biz</th><th>Bonus</th></tr></thead>
+                <tbody id="rank-chart-body" class="text-gray-400"></tbody>
+            </table></div>
         </div></div>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="components.js"></script>
     <script src="web3-handler.js"></script>
     <script>
-    lucide.createIcons();
+        lucide.createIcons();
+        window.rankPlan = [
+            { name: "None", self: 0, direct: 0, vol: 0, bonus: 0 },
+            { name: "1 Star", self: 200, direct: 2000, vol: 5000, bonus: 100 },
+            { name: "2 Star", self: 500, direct: 4000, vol: 10000, bonus: 200 },
+            { name: "3 Star", self: 750, direct: 7000, vol: 25000, bonus: 500 },
+            { name: "4 Star", self: 1000, direct: 20000, vol: 50000, bonus: 1200 },
+            { name: "5 Star", self: 1500, direct: 40000, vol: 100000, bonus: 3000 },
+            { name: "6 Star", self: 2500, direct: 80000, vol: 200000, bonus: 8000 },
+            { name: "7 Star", self: 5000, direct: 120000, vol: 500000, bonus: 25000 }
+        ];
 
-    // Contract structure ke hisaab se Rank Plan
-    window.rankPlan = [
-        { name: "None", count: 0, vol: 0 },
-        { name: "1Star", count: 5, vol: 5000 },
-        { name: "2Star", count: 10, vol: 10000 },
-        { name: "3Star", count: 20, vol: 25000 },
-        { name: "4Star", count: 50, vol: 50000 },
-        { name: "5Star", count: 100, vol: 100000 },
-        { name: "6Star", count: 200, vol: 500000 },
-        { name: "7Star", count: 500, vol: 1000000 }
-    ];
+        // Rank Chart render
+        const tbody = document.getElementById('rank-chart-body');
+        window.rankPlan.slice(1).forEach(r => {
+            tbody.innerHTML += `<tr><td class="text-white font-bold">${r.name}</td><td>$${r.self}</td><td>$${r.direct}</td><td>$${r.vol}</td><td class="text-green-500">$${r.bonus}</td></tr>`;
+        });
 
-    window.updateLeadershipUI = function(teamCount, totalVolume, currentRankIndex) {
-        const currentRank = window.rankPlan[currentRankIndex] || window.rankPlan[0];
-        const nextRank = window.rankPlan[currentRankIndex + 1] || window.rankPlan[7];
+        window.addEventListener('load', () => {
+            const check = setInterval(async () => {
+                if (window.contract && window.signer) {
+                    clearInterval(check);
+                    try {
+                        const addr = await window.signer.getAddress();
+                        const userData = await window.contract.users(addr);
+                        const stats = await window.contract.getUserStats(addr); 
+                        
+                        const self = parseFloat(ethers.utils.formatEther(userData.totalDeposit));
+                        const direct = parseFloat(ethers.utils.formatEther(stats[1]));
+                        const team = parseFloat(ethers.utils.formatEther(stats[2]));
+                        const rankIdx = userData.rank;
 
-        document.getElementById('rank-display').innerText = currentRank.name;
-        document.getElementById('next-rank-display').innerText = nextRank.name;
-        document.getElementById('curr-count').innerText = teamCount;
-        document.getElementById('target-count').innerText = nextRank.count;
-        document.getElementById('curr-vol').innerText = totalVolume.toLocaleString();
-        document.getElementById('target-vol').innerText = nextRank.vol.toLocaleString();
+                        document.getElementById('rank-display').innerText = window.rankPlan[rankIdx]?.name || "-";
+                        document.getElementById('next-rank-display').innerText = window.rankPlan[rankIdx + 1]?.name || "MAXED";
+                        document.getElementById('self-topup').innerText = self.toFixed(2);
+                        document.getElementById('direct-business').innerText = direct.toFixed(2);
+                        document.getElementById('team-total-deposit').innerText = team.toFixed(2);
+                        document.getElementById('current-team-count').innerText = stats[0].toNumber();
+                        document.getElementById('rank-reward-available').innerText = ethers.utils.formatEther(userData.rankBonus);
+                        
+                        const total = userData.roiIncome.add(userData.referralIncome).add(userData.levelIncome).add(userData.rankBonus);
+                        document.getElementById('total-earned').innerText = ethers.utils.formatEther(total);
 
-        const countPerc = nextRank.count > 0 ? (teamCount / nextRank.count) * 100 : 100;
-        const volPerc = nextRank.vol > 0 ? (totalVolume / nextRank.vol) * 100 : 100;
-        
-        document.getElementById('team-count-bar').style.width = Math.min(countPerc, 100) + "%";
-        document.getElementById('team-volume-bar').style.width = Math.min(volPerc, 100) + "%";
-    };
-
-    window.addEventListener('load', () => {
-        const check = setInterval(async () => {
-            if (window.contract && window.signer) {
-                clearInterval(check);
-                try {
-                    const addr = await window.signer.getAddress();
-                    
-                    // Contract data fetch
-                    const userData = await window.contract.users(addr);
-                    const stats = await window.contract.getUserStats(addr); 
-                    // stats structure: (teamCount, directBusiness, teamBusiness, totalRoi, totalRef, totalLevel, totalRankBonus)
-                    
-                    const teamCount = stats[0].toNumber();
-                    const teamBusiness = parseFloat(ethers.utils.formatEther(stats[2]));
-                    const rankIndex = userData.rank; // uint8 rank 0-7
-
-                    // UI Updates
-                    document.getElementById('team-count').innerText = teamCount;
-                    document.getElementById('current-team-count').innerText = teamCount;
-                    document.getElementById('team-total-deposit').innerText = teamBusiness.toFixed(2);
-                    document.getElementById('rank-reward-available').innerText = ethers.utils.formatEther(userData.rankBonus);
-                    
-                    // Earnings
-                    const totalEarned = userData.roiIncome.add(userData.referralIncome).add(userData.levelIncome).add(userData.rankBonus);
-                    document.getElementById('total-earned').innerText = ethers.utils.formatEther(totalEarned);
-                    document.getElementById('referral-earnings').innerText = ethers.utils.formatEther(userData.referralIncome);
-                    document.getElementById('level-earnings').innerText = ethers.utils.formatEther(userData.levelIncome);
-
-                    // Update Progress UI
-                    window.updateLeadershipUI(teamCount, teamBusiness, rankIndex);
-                    
-                } catch(e) { console.error("Data Load Error:", e); }
-            }
-        }, 500);
-    });
-</script>
+                        // Progress
+                        const next = window.rankPlan[rankIdx + 1] || window.rankPlan[7];
+                        document.getElementById('curr-vol').innerText = team.toLocaleString();
+                        document.getElementById('target-vol').innerText = next.vol.toLocaleString();
+                        document.getElementById('team-volume-bar').style.width = Math.min((team / next.vol) * 100, 100) + "%";
+                    } catch(e) { console.error(e); }
+                }
+            }, 500);
+        });
+    </script>
 </body>
 </html>
