@@ -1,8 +1,8 @@
 let provider, signer, contract;
 
 // --- CONFIGURATION ---
-const CONTRACT_ADDRESS = "0xe93731eEdDb1C8770138727175324ECf23c9Ef19"; 
-const USDT_TOKEN_ADDRESS = "YOUR_USDT_TOKEN_ADDRESS"; // Yahan apna USDT address daalein
+const CONTRACT_ADDRESS = "0xb4423f781F7C9CbD016e23bBA656616224156602"; 
+const USDT_TOKEN_ADDRESS = "0x3B66b1E08F55AF26c8eA14a73dA64b6bC8D799dE"; // Yahan apna USDT address daalein
 const TESTNET_CHAIN_ID = 97;
 
 // --- RANK CONFIG (Star1 to Master King) ---
