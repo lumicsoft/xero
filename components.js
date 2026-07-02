@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="w-8 h-8 bg-yellow-500 rounded-lg flex items-center justify-center shadow-lg shadow-yellow-500/20">
                         <i data-lucide="shield-check" class="text-black w-5 h-5"></i>
                     </div>
-                    <span class="text-lg font-black orbitron tracking-tighter uppercase text-white">BLACK<span class="text-yellow-500">STAX</span></span>
+                    <span class="text-lg font-black orbitron tracking-tighter uppercase text-white">XERO</span>
                 </div>
                 <div class="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
                     <button onclick="location.href='index1.html'" class="px-3 py-2 rounded-lg text-[10px] font-bold orbitron uppercase transition-all ${path.includes('index1.html') ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-white'}">Dashboard</button>
@@ -40,26 +40,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4"></div>
                 <button onclick="location.href='index1.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="layout-dashboard" class="w-5 h-5 text-yellow-500"></i> DASHBOARD</button>
                 <button onclick="location.href='leadership.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="award" class="w-5 h-5 text-purple-500"></i> RANK </button>
-                <button onclick="location.href='history.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="history" class="w-5 h-5 text-blue-500"></i> TRANSACTION HISTORY</button>
-                <button onclick="handleLogout()" class="flex items-center gap-4 p-4 bg-red-500/10 rounded-2xl text-red-500 orbitron text-xs font-bold border border-red-500/10"><i data-lucide="power" class="w-5 h-5"></i> LOGOUT SESSION</button>
+                <button onclick="location.href='history.html'" class="flex items-center gap-4 p-4 bg-white/5 rounded-2xl text-gray-300 orbitron text-xs font-bold border border-white/5"><i data-lucide="history" class="w-5 h-5 text-blue-500"></i> HISTORY</button>
+                <button onclick="handleLogout()" class="flex items-center gap-4 p-4 bg-red-500/10 rounded-2xl text-red-500 orbitron text-xs font-bold border border-red-500/10"><i data-lucide="power" class="w-5 h-5"></i> LOGOUT</button>
                 <button onclick="toggleMobileMenu()" class="mt-2 py-4 text-gray-500 orbitron text-[10px] font-black uppercase tracking-widest">Close Menu</button>
             </div>
         </div>
 
         <div class="fixed bottom-6 left-4 right-4 md:hidden z-[9000]">
             <div class="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl flex justify-around items-center p-3 shadow-2xl">
-                <a href="index1.html" class="flex flex-col items-center gap-1 ${path.includes('index1.html') ? 'text-yellow-500' : 'text-gray-500'}">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Home</span>
-                </a>
-                <a href="deposits.html" class="flex flex-col items-center gap-1 ${path.includes('deposits.html') ? 'text-yellow-500' : 'text-gray-500'}">
-                    <i data-lucide="layers" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Stake</span>
-                </a>
-                <a href="leadership.html" class="flex flex-col items-center gap-1 ${path.includes('leadership.html') ? 'text-yellow-500' : 'text-gray-500'}">
-                    <i data-lucide="award" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Rank</span>
-                </a>
-                <button onclick="toggleMobileMenu()" class="flex flex-col items-center gap-1 text-gray-500">
-                    <i data-lucide="more-vertical" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">More</span>
-                </button>
+                <a href="index1.html" class="flex flex-col items-center gap-1 ${path.includes('index1.html') ? 'text-yellow-500' : 'text-gray-500'}"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Home</span></a>
+                <a href="deposits.html" class="flex flex-col items-center gap-1 ${path.includes('deposits.html') ? 'text-yellow-500' : 'text-gray-500'}"><i data-lucide="layers" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Stake</span></a>
+                <a href="leadership.html" class="flex flex-col items-center gap-1 ${path.includes('leadership.html') ? 'text-yellow-500' : 'text-gray-500'}"><i data-lucide="award" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">Rank</span></a>
+                <button onclick="toggleMobileMenu()" class="flex flex-col items-center gap-1 text-gray-500"><i data-lucide="more-vertical" class="w-5 h-5"></i><span class="text-[8px] font-bold orbitron">More</span></button>
             </div>
         </div>
     `;
@@ -71,9 +63,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="w-6 h-6 bg-yellow-500/20 rounded flex items-center justify-center">
                     <i data-lucide="shield" class="text-yellow-500 w-3 h-3"></i>
                 </div>
-                <span class="text-xs font-bold orbitron uppercase tracking-widest text-gray-500">BLACKSTAX Protocol</span>
+                <span class="text-xs font-bold orbitron uppercase tracking-widest text-gray-500">XERO PROTOCOL</span>
             </div>
-            <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2026 Blackstax. All Rights Reserved.</p>
+            <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2026 XERO. All Rights Reserved.</p>
         </footer>
     `;
 
