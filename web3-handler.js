@@ -116,49 +116,52 @@ async function init() {
 }
 
 // --- CORE LOGIC ---
-window.handleDeposit = async function(withBurn) {
+window.handleDeposit = async function() {
     const amountInput = document.getElementById('deposit-amount');
-    const depositBtn = event.target; // Jo button click hua hai
+    const depositBtn = event.target; 
     
-    if (!amountInput || !amountInput.value || parseFloat(amountInput.value) < 100) {
-        return alert("Min 100 BLX required!");
+    // Min deposit check (Contract ke anusar 50 USDT)
+    if (!amountInput || !amountInput.value || parseFloat(amountInput.value) < 50) {
+        return alert("Min 50 USDT required!");
     }
 
     try {
         let activeSigner = window.signer || provider.getSigner();
+        // CONTRACT_ADDRESS wahi rahega jo aapne deploy kiya hai
         let activeContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, activeSigner);
 
         depositBtn.disabled = true;
         depositBtn.innerText = "APPROVING...";
 
         const amountInWei = ethers.utils.parseUnits(amountInput.value.toString(), 18);
-        const blxToken = new ethers.Contract(BLX_TOKEN_ADDRESS, ERC20_ABI, activeSigner);
+        
+        // USDT Token Contract (Yahan aapka USDT address hona chahiye)
+        const usdtToken = new ethers.Contract(USDT_TOKEN_ADDRESS, ERC20_ABI, activeSigner);
 
-        // 1. Approval Step
-        const allowance = await blxToken.allowance(await activeSigner.getAddress(), CONTRACT_ADDRESS);
+        // 1. Approval Step: USDT ko contract ke liye approve karein
+        const allowance = await usdtToken.allowance(await activeSigner.getAddress(), CONTRACT_ADDRESS);
         if (allowance.lt(amountInWei)) {
-            const approveTx = await blxToken.approve(CONTRACT_ADDRESS, amountInWei);
+            const approveTx = await usdtToken.approve(CONTRACT_ADDRESS, amountInWei);
             await approveTx.wait();
         }
 
-        depositBtn.innerText = "SIGNING...";
+        depositBtn.innerText = "DEPOSITING...";
 
-        // 2. Stake Step: yahan 'withBurn' dynamic parameter use ho raha hai
-        // stake(uint256 amount, bool withBurn)
-        const depositGas = await activeContract.estimateGas.stake(amountInWei, withBurn);
-        const tx = await activeContract.stake(amountInWei, withBurn, { 
+        // 2. Deposit Step: Contract ke 'deposit' function ko call karein
+        // deposit(uint256 _amount)
+        const depositGas = await activeContract.estimateGas.deposit(amountInWei);
+        const tx = await activeContract.deposit(amountInWei, { 
             gasLimit: depositGas.mul(150).div(100) 
         });
         
-        depositBtn.innerText = withBurn ? "BURNING & STAKING..." : "STAKING...";
         await tx.wait();
         
-        alert(withBurn ? "Stake with Burn Successful!" : "Stake Successful!");
+        alert("Deposit Successful!");
         location.reload(); 
     } catch (err) {
         console.error("Deposit Error:", err);
         alert("Error: " + (err.data?.message || err.message || "Transaction Failed"));
-        depositBtn.innerText = withBurn ? "STAKE WITH BURN" : "STAKE WITHOUT BURN";
+        depositBtn.innerText = "DEPOSIT"; // Button ka original text
         depositBtn.disabled = false;
     }
 }
