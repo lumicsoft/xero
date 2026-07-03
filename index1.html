@@ -93,7 +93,7 @@
                         <div>
                             <p class="label-text">Pending ROI</p>
                             <h4 class="text-xl font-black orbitron text-white">   $<span id="pending-roi-display">0.00</span></h4>
-                            <button onclick="handleClaimROI(0)" class="text-[9px] underline text-yellow-500 uppercase italic">Claim ROI</button>
+                            <button onclick="handleClaimROI()" class="text-[9px] underline text-yellow-500 uppercase italic">Claim ROI</button>
                         </div>
                     </div>
                     <div class="bg-black/40 p-5 rounded-2xl border border-white/5 flex items-center gap-4">
@@ -161,7 +161,7 @@
             <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div>
                     <p class="label-text mb-2">Available to Withdraw</p>
-                    <h3 class="text-3xl font-black orbitron text-yellow-500"><span id="withdraw-balance-display">0.00</span>   $</h3>
+                    <h3 class="text-3xl font-black orbitron text-yellow-500">   $<span id="withdraw-balance-display">0.00</span></h3>
                 </div>
                 <div class="flex gap-4 w-full md:w-auto">
                     <input type="number" id="withdraw-amount" placeholder="Enter Amount" class="bg-black/50 border border-white/10 rounded-xl px-4 py-4 w-full text-white">
@@ -185,20 +185,25 @@
                 alert("Referral Link Copied!");
             }
         }
+        
+        // Final Live ROI Implementation without deleting any lines
         window.addEventListener('load', () => {
-            setTimeout(async () => {
-                const addr = localStorage.getItem('userAddress');
-                if(addr && typeof fetchAllData === 'function') {
-                    await fetchAllData(addr);
-                    await fetchAndDisplayData();
-                    if(window.contract) {
-                        try {
-                            const pending = await window.contract.getPendingROI(addr);
-                            document.getElementById('pending-roi-display').innerText = ethers.utils.formatEther(pending);
-                        } catch(e) { console.log("ROI Error", e); }
-                    }
+            const updateUI = setInterval(async () => {
+                if (window.contract && window.signer) {
+                    try {
+                        const addr = await window.signer.getAddress();
+                        
+                        // 1. Pending ROI fetch
+                        const pending = await window.contract.getPendingRoi(addr);
+                        document.getElementById('pending-roi-display').innerText = parseFloat(ethers.utils.formatEther(pending)).toFixed(4);
+                        
+                        // 2. Refresh UI stats from web3-handler
+                        if(typeof fetchAndDisplayData === 'function') {
+                            await fetchAndDisplayData();
+                        }
+                    } catch(e) { console.log("Live Sync Error", e); }
                 }
-            }, 1500);
+            }, 3000);
         });
     </script>
 </body>
