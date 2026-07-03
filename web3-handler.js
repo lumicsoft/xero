@@ -23,6 +23,7 @@ const CONTRACT_ABI = [
     "function deposit(uint256 amount) external",
     "function claimRoi() external",
     "function withdraw() external",
+    "function getPendingRoi(address user) external view returns (uint256)",
     "function users(address) view returns (bool isRegistered, address referrer, uint256 totalDeposit, uint256 totalWithdrawn, uint256 roiIncome, uint256 referralIncome, uint256 levelIncome, uint256 rankBonus, uint8 rank, uint256 lastUpdate)",
     "function userStats(address) view returns (uint256 totalRoiEarned, uint256 totalReferralEarned, uint256 totalLevelEarned, uint256 totalRankBonusEarned, uint256 directBusiness, uint256 teamBusiness, uint256 teamCount)",
     "function getHistory(address user) external view returns (tuple(string category, address fromUser, uint256 amount, uint256 timestamp)[])",
