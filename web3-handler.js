@@ -168,18 +168,29 @@ window.handleDeposit = async function() {
     }
 }
 
-window.handleClaimROI = async function(stakeIndex = 0) {
+window.handleClaimROI = async function() {
     const claimBtn = event.target;
     try {
-        claimBtn.disabled = true; claimBtn.innerText = "CLAIMING...";
-        const activeContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider.getSigner());
-        const tx = await activeContract.claimROI(stakeIndex);
+        claimBtn.disabled = true; 
+        claimBtn.innerText = "CLAIMING...";
+        
+        // Contract instance ko sahi se load karein
+        const activeContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, window.signer);
+        
+        // Aapke contract mein claimRoi() mein koi parameter (stakeIndex) nahi hai
+        const tx = await activeContract.claimRoi(); 
+        
+        console.log("Transaction sent:", tx.hash);
         await tx.wait();
+        
         alert("ROI Claimed Successfully!");
         location.reload(); 
     } catch (err) {
-        alert("Claim failed: " + (err.reason || err.message));
-        claimBtn.disabled = false; claimBtn.innerText = "CLAIM ROI";
+        console.error("Claim failed:", err);
+        // Error message dikhayein
+        alert("Claim failed: " + (err.data?.message || err.message));
+        claimBtn.disabled = false; 
+        claimBtn.innerText = "CLAIM ROI";
     }
 }
 window.handleRequestUnstake = async function(stakeIndex = 0) {
